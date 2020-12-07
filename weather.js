@@ -10,7 +10,17 @@ async function getWeather() {
   if (response.status == 200) {
     weather = response.data
   }
-  console.log(weather)
+
+  const report = {
+    feelsLike : Math.round(weather.main.feels_like -273.15),
+    clouds : weather.weather[0].description,
+    windSpeed: weather.wind.speed,
+    windDirection: weather.wind.deg,
+    visibility: weather.visibility/1000,
+    humidity : weather.main.humidity
+  }
+  console.log(report);
 }
 
 getWeather();
+
