@@ -1,5 +1,18 @@
-const apiKey = "YOUR API KEY"
-const weatherRequest = `http://api.openweathermap.org/data/2.5/weather?q=Tramore,Ireland&appid=${apiKey}`;
+const apiKey = "YOUR API KEY";
+
+async function readWeather(location) {
+  let weather = null;
+  const weatherRequest = `http://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}`;
+  try {
+    const response = await axios.get(weatherRequest);
+    if (response.status == 200) {
+      weather = response.data
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return weather;
+}
 
 function renderCell(row, col, value) {
   const cell = row.insertCell(col);
@@ -18,18 +31,22 @@ async function renderWeather(report) {
 }
 
 async function fetchWeather() {
-  let weather = {};
-  const response = await axios.get(weatherRequest)
-  if (response.status == 200) {
-    weather = response.data
+  let result = "Success"
+  const location = document.getElementById("location-id").value;
+  let weather = await readWeather(location);
+  if (weather != null) {
+    const report = {
+      feelsLike : Math.round(weather.main.feels_like -273.15),
+      clouds : weather.weather[0].description,
+      windSpeed: weather.wind.speed,
+      windDirection: weather.wind.deg,
+      visibility: weather.visibility/1000,
+      humidity : weather.main.humidity
+    }
+      renderWeather(report)
+    } else {
+    result = "Unknown Location";
   }
-  const report = {
-    feelsLike : Math.round(weather.main.feels_like -273.15),
-    clouds : weather.weather[0].description,
-    windSpeed: weather.wind.speed,
-    windDirection: weather.wind.deg,
-    visibility: weather.visibility/1000,
-    humidity : weather.main.humidity
-  }
-  renderWeather(report)
+  resultElement = document.getElementById("result-msg");
+  resultElement.textContent = result;
 }
